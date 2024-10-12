@@ -1,0 +1,9 @@
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.env
+Homestead.yaml
+Homestead.json
+.phpunit.result.cache
+/.vscode
