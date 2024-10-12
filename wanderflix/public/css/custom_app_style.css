@@ -1,0 +1,9 @@
+/* Stile di default per il tema chiaro */
+.group-color {
+    background-color: var(--light-color);
+}
+
+/* Cambia il colore se è presente la classe 'dark' */
+.dark .group-color {
+    background-color: attr(data-dark-color color);
+}
