@@ -131,4 +131,11 @@ class FilmResource extends Resource
             'edit' => Pages\EditFilm::route('/{record}/edit'),
         ];
     }
+
+    public static function getWidgets(): array
+    {
+        return [
+            FilmResource\Widgets\FilmsOverview::class
+        ];
+    }
 }

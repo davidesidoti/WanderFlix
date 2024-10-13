@@ -16,4 +16,11 @@ class ListFilms extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            FilmResource\Widgets\FilmsOverview::class
+        ];
+    }
 }
