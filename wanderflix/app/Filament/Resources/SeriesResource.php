@@ -125,4 +125,11 @@ class SeriesResource extends Resource
             'edit' => Pages\EditSeries::route('/{record}/edit'),
         ];
     }
+
+    public static function getWidgets(): array
+    {
+        return [
+            SeriesResource\Widgets\SeriesOverview::class
+        ];
+    }
 }

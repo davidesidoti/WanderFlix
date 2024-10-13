@@ -16,4 +16,11 @@ class ListSeries extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            SeriesResource\Widgets\SeriesOverview::class
+        ];
+    }
 }
