@@ -2,17 +2,15 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FilmResource\Pages;
-use App\Models\Film;
+use App\Filament\Resources\SeriesResource\Pages;
+use App\Models\Series;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Grid;
-use App\Models\Group;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\EditAction;
@@ -20,12 +18,12 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\IconColumn;
 
-class FilmResource extends Resource
+class SeriesResource extends Resource
 {
-    protected static ?string $model = Film::class;
+    protected static ?string $model = Series::class;
     protected static ?string $navigationGroup  = 'Watchlist';
-    protected static ?string $navigationIcon = 'heroicon-o-film';
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationIcon = 'heroicon-o-tv';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -35,18 +33,20 @@ class FilmResource extends Resource
                     TextInput::make('name')
                         ->required(),
                         
-                    Checkbox::make('watched')
+                    Checkbox::make('completed')
                     ->reactive(),
     
-                    DatePicker::make('watched_at')
-                        ->visible(fn ($get) => $get('watched'))
+                    DatePicker::make('completed_at')
+                        ->visible(fn ($get) => $get('completed'))
                         ->nullable(),
-    
-                    Select::make('group_id')
-                        ->label('Raggruppamento')
-                        ->options(Group::all()->pluck('name', 'id'))
-                        ->getOptionLabelUsing(fn ($value) => optional(Group::find($value))->name)
-                        ->searchable(),
+
+                    TextInput::make('watched_episodes')
+                        ->numeric()
+                        ->default(0),
+
+                    TextInput::make('total_episodes')
+                        ->numeric()
+                        ->default(0),
                 ]),
             ]);
     }
@@ -57,34 +57,31 @@ class FilmResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->sortable()
-                    ->searchable()
-                    ->formatStateUsing(function ($state, $record) {
-                        $group = $record->group;
-                        if ($group) {
-                            return "<span style='background-color: {$group->color}; padding: 4px; display: inline-block; width: 100%;'
-                            class='group-color'>{$state}</span>";
-                        }
-                        return $state;
-                    })
-                    ->html(),
+                    ->searchable(),
                     
-                IconColumn::make('watched')
+                IconColumn::make('completed')
                     ->boolean()
                     ->sortable(),
 
-                TextColumn::make('watched_at')
+                TextColumn::make('completed_at')
                     ->date()
                     ->sortable(),
 
-                TextColumn::make('group_id')
-                    ->formatStateUsing(function ($state, $record) {
-                        return Group::where('id', $record->group_id)->first()->name;
+                TextColumn::make('watching_percentage')
+                    ->state(function (Series $record): string {
+                        $total_watched = $record->watched_episodes;
+                        $total_episodes = $record->total_episodes;
+
+                        if ($total_episodes > 0) {
+                            $percentage = ($total_watched / $total_episodes) * 100;
+                            return number_format($percentage, 2) . '%';
+                        }
+
+                        return '0%';
                     })
-                    ->searchable()
-                    ->sortable(),
+                    ->html(),
 
                 TextColumn::make('updated_by')
-                    ->label('Aggiornato da')
                     ->formatStateUsing(fn ($state, $record) => $record->updater?->name ?? 'N/A')  // Mostra il nome dell'utente
                     ->sortable(),
 
@@ -96,16 +93,13 @@ class FilmResource extends Resource
                     ->dateTime()
                     ->toggleable(),
             ])
-            ->defaultSort('watched_at', 'asc')
+            ->defaultSort('completed_at', 'asc')
             ->filters([
-                SelectFilter::make('watched')
+                SelectFilter::make('completed')
                 ->options([
                     '1' => 'Sì',  // Film visti
                     '0' => 'No',  // Film non visti
                 ]),
-            
-                SelectFilter::make('group_id')
-                    ->relationship('group', 'name') // Relazione verso il gruppo
             ])
             ->actions([
                 EditAction::make(),
@@ -126,16 +120,9 @@ class FilmResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFilms::route('/'),
-            'create' => Pages\CreateFilm::route('/create'),
-            'edit' => Pages\EditFilm::route('/{record}/edit'),
-        ];
-    }
-
-    public static function getWidgets(): array
-    {
-        return [
-            FilmResource\Widgets\FilmsOverview::class
+            'index' => Pages\ListSeries::route('/'),
+            'create' => Pages\CreateSeries::route('/create'),
+            'edit' => Pages\EditSeries::route('/{record}/edit'),
         ];
     }
 }
