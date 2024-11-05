@@ -8,7 +8,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Columns\TextColumn;
@@ -33,12 +33,16 @@ class SeriesResource extends Resource
                     TextInput::make('name')
                         ->required(),
                         
-                    Checkbox::make('completed')
-                    ->reactive(),
+                    Toggle::make('watched')
+                        ->onColor('success')
+                        ->offColor('danger')
+                        ->inline(false)
+                        ->reactive(),
     
                     DatePicker::make('completed_at')
                         ->visible(fn ($get) => $get('completed'))
-                        ->nullable(),
+                        ->nullable()
+                        ->native(false),
 
                     TextInput::make('watched_episodes')
                         ->numeric()

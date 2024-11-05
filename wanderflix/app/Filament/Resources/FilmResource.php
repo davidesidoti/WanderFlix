@@ -8,7 +8,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Grid;
@@ -35,18 +35,23 @@ class FilmResource extends Resource
                     TextInput::make('name')
                         ->required(),
                         
-                    Checkbox::make('watched')
+                    Toggle::make('watched')
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->inline(false)
                     ->reactive(),
     
                     DatePicker::make('watched_at')
                         ->visible(fn ($get) => $get('watched'))
-                        ->nullable(),
+                        ->nullable()
+                        ->native(false),
     
                     Select::make('group_id')
                         ->label('Raggruppamento')
                         ->options(Group::all()->pluck('name', 'id'))
                         ->getOptionLabelUsing(fn ($value) => optional(Group::find($value))->name)
-                        ->searchable(),
+                        ->searchable()
+                        ->native(false),
                 ]),
             ]);
     }
